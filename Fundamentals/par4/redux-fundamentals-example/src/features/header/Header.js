@@ -5,20 +5,30 @@ import { saveNewTodo } from '../todos/todosSlice'
 
 const Header = () => {
   const [text, setText] = useState('')
+  const [status, setStatus] = useState('idle')
   const dispatch = useDispatch()
 
   const handleChange = (e) => setText(e.target.value)
 
-  const handleKeyDown = (e) => {
-    // If the user pressed the Enter key:
-    const trimmedText = text.trim()
-    if (e.which === 13 && trimmedText) {
-      // Create and dispatch the thunk function itself
-      dispatch(saveNewTodo(trimmedText))
-      // And clear out the text input
-      setText('')
-    }
+
+const handleKeyDown = async e => {
+  // if the user pressed the enter key:
+  const trimmedText = text.trim()
+  if (e.which === 13 && trimmedText) {
+    // Create and dispatch the thumb function itself
+    setStatus('loading')
+    // Wait for the promise returned by save new to do
+    await dispatch(saveNewTodo(trimmedText))
+    // And clear out the text input
+    setText('')
+    setStatus('idle')
+  
   }
+}
+
+let isLoading = status === 'loading'
+let placeholder = isLoading ? '' : 'What needs to be done?'
+let loader = isLoading ? <div className="loader" /> : null
 
   return (
     <header className="header">
@@ -28,7 +38,9 @@ const Header = () => {
         value={text}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        disabled={isLoading}
       />
+      {loader}
     </header>
   )
 }
